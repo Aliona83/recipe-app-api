@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from core import models
 
+
 class ModelTests(TestCase):
     """Test models."""
 
@@ -60,4 +61,3 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(recipe), recipe.title)
-
