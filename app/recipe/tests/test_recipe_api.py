@@ -12,15 +12,15 @@ from rest_framework.test import APIClient
 
 from core.models import Recipe
 
-from recipe.serializers import RecipeSerializer,RecipeDetailSerializer
+from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 
 RECIPES_URL = reverse('recipe:recipe-list')
 
+
 def detail_url(recipe_id):
     """Create and return a recipe detail URL."""
     return reverse('recipe:recipe-detail', args=[recipe_id])
-
 
 def create_recipe(user, **params):
     """Create and return a sample recipe."""
@@ -39,7 +39,6 @@ def create_recipe(user, **params):
 def create_user(**params):
     """Create and return a new user."""
     return get_user_model().objects.create_user(**params)
-
 
 
 class PublicRecipeAPITests(TestCase):
@@ -62,7 +61,6 @@ class PrivateRecipeApiTests(TestCase):
         self.client = APIClient()
         self.user = create_user(email='user@example.com', password='test123')
         self.client.force_authenticate(self.user)
-
 
     def test_retrieve_recipes(self):
         """Test retrieving a list of recipes."""
@@ -99,7 +97,6 @@ class PrivateRecipeApiTests(TestCase):
         serializer = RecipeDetailSerializer(recipe)
         self.assertEqual(res.data, serializer.data)
 
-
     def test_create_recipe(self):
         """Test creating a recipe."""
         payload = {
@@ -114,7 +111,6 @@ class PrivateRecipeApiTests(TestCase):
         for k, v in payload.items():
             self.assertEqual(getattr(recipe, k), v)
         self.assertEqual(recipe.user, self.user)
-
 
     def test_partial_update(self):
         """Test partial update of a recipe."""
