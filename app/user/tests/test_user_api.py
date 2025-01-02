@@ -21,14 +21,14 @@ def create_user(**params):
 
 def update(self, instance, validated_data):
     """Update and return user."""
-        password = validated_data.pop('password', None)
-        user = super().update(instance, validated_data)
+    password = validated_data.pop('password', None)
+    user = super().update(instance, validated_data)
 
-        if password:
-            user.set_password(password)
-            user.save()
+    if password:
+        user.set_password(password)
+        user.save()
 
-        return user
+    return user
 
 
 class PublicUserApiTests(TestCase):
