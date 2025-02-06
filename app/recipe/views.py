@@ -1,12 +1,6 @@
 """
 Views for the recipe APIs
 """
-from drf_spectacular.utils import (
-    extend_schema_view,
-    extend_schema,
-    OpenApiParameter,
-    OpenApiTypes,
-)
 
 from rest_framework import (
     viewsets,
@@ -17,7 +11,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
+from django.shortcuts import render,redirect
+from .forms import RecipeForm
 from core.models import (
     Recipe,
     Tag,
@@ -26,22 +21,6 @@ from core.models import (
 from recipe import serializers
 
 
-@extend_schema_view(
-    list=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                'tags',
-                OpenApiTypes.STR,
-                description='Comma separated list of tag IDs to filter',
-            ),
-            OpenApiParameter(
-                'ingredients',
-                OpenApiTypes.STR,
-                description='Comma separated list of ingredient IDs to filter',
-            ),
-        ]
-    )
-)
 class RecipeViewSet(viewsets.ModelViewSet):
     """View for manage recipe APIs."""
     serializer_class = serializers.RecipeDetailSerializer
@@ -95,17 +74,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                'assigned_only',
-                OpenApiTypes.INT, enum=[0, 1],
-                description='Filter by items assigned to recipes.',
-            ),
-        ]
-    )
-)
 class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
                             mixins.UpdateModelMixin,
                             mixins.ListModelMixin,
@@ -139,10 +107,24 @@ class IngredientViewSet(BaseRecipeAttrViewSet):
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
 
-def recipe_home(request):
-    """Render the homepage with all recipes."""
-    recipes = Recipe.objects.all().order_by('-id')
-    return render(request, 'recipe/home.html', {
-        'recipes': recipes,
-        'user': request.user
-    })
+def recipe_list(request):
+    tags = Tag.objects.all()
+    ingredients = Ingredient.objects.all()
+    recipes = Recipe.objects.all()
+    return render(request, 'recipe/recipe-list.html',{'recipes': recipes,'tags': tags})
+
+
+def add_recipe(request):
+    if request.method == 'POST':
+        form = RecipeForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('recipe:recipe-list')
+    else:
+        form = RecipeForm()
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'recipe/add-recipe.html', context)
+

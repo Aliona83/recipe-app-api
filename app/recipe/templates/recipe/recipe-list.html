@@ -7,6 +7,15 @@
 </head>
 <body>
     <h1 class="text-center">Welcome to the Recipe App</h1>
+
+    <div>
+        {% for tag in tags %}
+            <p>{{ tag.name }}</p>
+        {% empty %}
+            <p>No tags available.</p>
+        {% endfor %}
+    </div>
+
     <ul>
         {% for recipe in recipes %}
             <li>
@@ -14,10 +23,16 @@
                 <p>{{ recipe.description }}</p>
                 <p>By: {{ recipe.user }}</p>
                 <p>Link: {{ recipe.link }}</p>
+                <p>Time:{{recipe.time_minutes}}</p>
+                {% if recipe.image %}
+                    <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" width="100">
+                {% endif %}
             </li>
         {% empty %}
             <p>No recipes available.</p>
         {% endfor %}
     </ul>
+
+
 </body>
 </html>

@@ -1,36 +1,38 @@
+version: "3.9"
+
 services:
   app:
     build:
       context: .
       args:
-        - DEV=true  # Optional build argument for customization during Dockerfile build.
+        - DEV=true
     ports:
-      - "8000:8000"  # Maps port 8000 of the container to port 8000 on the host.
+      - "8000:8000"
     volumes:
-      - ./app:/app  # Maps the local `app` directory to `/app` in the container (for development purposes).
-      - static-data:/vol/web  # Shared volume for static and media files.
+      - ./app:/app
+      - dev-static-data:/vol/web
     command: >
-      sh -c "python manage.py wait_for_db &&  # Wait for the database to be ready.
-             python manage.py migrate &&     # Apply database migrations.
-             python manage.py collectstatic --noinput &&  # Collect static files.
-             python manage.py runserver 0.0.0.0:8000"  # Start Django dev server.
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     environment:
-      - DB_HOST=db  # Database host (service name in this case).
-      - DB_NAME=devdb  # Database name.
-      - DB_USER=devuser  # Database user.
-      - DB_PASS=changeme  # Database password.
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+      - DEBUG=1
     depends_on:
-      - db  # Ensures the `db` service starts before `app`.
+      - db
 
   db:
-    image: postgres:13-alpine  # Lightweight PostgreSQL image.
+    image: postgres:13-alpine
     volumes:
-      - dev-db-data:/var/lib/postgresql/data  # Persistent volume for database data.
+      - dev-db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=devdb  # Sets the database name.
-      - POSTGRES_USER=devuser  # Sets the database user.
-      - POSTGRES_PASSWORD=changeme  # Sets the database password.
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
 
 volumes:
-  dev-db-data:  # Volume for PostgreSQL data.
-  static-data:  # Volume for static and media files.
+  dev-db-data:
+  dev-static-data:
