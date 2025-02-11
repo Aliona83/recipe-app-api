@@ -34,7 +34,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 ALLOWED_HOSTS.extend(
     filter(
         None,
-        os.environ.get('ALLOWED_HOSTS', '').split(','),
+        os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(','),
     )
 )
 # Application definition

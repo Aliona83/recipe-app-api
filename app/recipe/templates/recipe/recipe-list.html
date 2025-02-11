@@ -1,38 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Home</title>
-</head>
-<body>
-    <h1 class="text-center">Welcome to the Recipe App</h1>
+{% extends 'recipe/base.html' %}
 
-    <div>
-        {% for tag in tags %}
-            <p>{{ tag.name }}</p>
-        {% empty %}
-            <p>No tags available.</p>
-        {% endfor %}
+
+
+{% block title %}Recipe Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Recipe List</h1>
+    {% if recipes %}
+        <ul class="recipe-list">
+            {% for recipe in recipes %}
+                <li class="recipe-item">
+                    <h2>{{ recipe.title }}</h2>
+                    <p>{{ recipe.description }}</p>
+                    <p>{{ recipe.ingredients}}</p>
+                    <p><strong>Time:</strong> {{ recipe.time_minutes }} minutes</p>
+                    <p><strong>Price:</strong> ${{ recipe.price }}</p>
+
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" alt="{{ recipe.title }} image" class="recipe-image">
+                    {% else %}
+                        <p>No image available.</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No recipes available.</p>
+    {% endif %}
     </div>
-
-    <ul>
-        {% for recipe in recipes %}
-            <li>
-                <h2>{{ recipe.title }}</h2>
-                <p>{{ recipe.description }}</p>
-                <p>By: {{ recipe.user }}</p>
-                <p>Link: {{ recipe.link }}</p>
-                <p>Time:{{recipe.time_minutes}}</p>
-                {% if recipe.image %}
-                    <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" width="100">
-                {% endif %}
-            </li>
-        {% empty %}
-            <p>No recipes available.</p>
-        {% endfor %}
-    </ul>
-
-
-</body>
-</html>
+{% endblock %}

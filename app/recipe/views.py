@@ -9,7 +9,7 @@ from rest_framework import (
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render,redirect
 from .forms import RecipeForm
@@ -25,7 +25,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """View for manage recipe APIs."""
     serializer_class = serializers.RecipeDetailSerializer
     queryset = Recipe.objects.all()
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def _params_to_ints(self, qs):
@@ -106,11 +106,15 @@ class IngredientViewSet(BaseRecipeAttrViewSet):
     """Manage ingredients in the database."""
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
+    
+def welcome_page(request):
+    return render(request, 'recipe/welcome-page.html')   
 
 def recipe_list(request):
     tags = Tag.objects.all()
     ingredients = Ingredient.objects.all()
     recipes = Recipe.objects.all()
+    recipes = Recipe.objects.filter(user=request.user)
     return render(request, 'recipe/recipe-list.html',{'recipes': recipes,'tags': tags})
 
 
@@ -118,13 +122,14 @@ def add_recipe(request):
     if request.method == 'POST':
         form = RecipeForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            # Add user association before saving
+            recipe = form.save(commit=False)
+            recipe.user = request.user  # Associate with the logged-in user
+            recipe.save()
+            form.save_m2m()  # Save many-to-many fields like tags and ingredients
             return redirect('recipe:recipe-list')
     else:
         form = RecipeForm()
 
-    context = {
-        'form': form,
-    }
+    context = {'form': form}
     return render(request, 'recipe/add-recipe.html', context)
-
